@@ -14,6 +14,7 @@ before_install:
     conan profile new default --detect
     conan profile update settings.compiler.libcxx=libstdc++11 default
     conan remote add cliutils https://api.bintray.com/conan/cliutils/CLI11
+    conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 install:
   - |
     # Install dependencies
