@@ -29,7 +29,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <eval_metrics.hpp>
+#include <irm.hpp>
 
 namespace {
 
@@ -40,7 +40,7 @@ class MetricTest : public ::testing::TestWithParam<
 TEST_P(MetricTest, PrecisionAt)
 {
     auto [k, relevance, expected] = GetParam();
-    ASSERT_DOUBLE_EQ(irk::precision_at(k)(relevance), expected);
+    ASSERT_DOUBLE_EQ(irm::precision_at(k)(relevance), expected);
 }
 
 INSTANTIATE_TEST_CASE_P(
@@ -78,7 +78,7 @@ class RBPTest : public ::testing::TestWithParam<
 TEST_P(RBPTest, RBP)
 {
     auto [persistance, relevance, expected] = GetParam();
-    ASSERT_DOUBLE_EQ(irk::rank_biased_precision(persistance)(relevance), expected);
+    ASSERT_DOUBLE_EQ(irm::rank_biased_precision(persistance)(relevance), expected);
 }
 
 INSTANTIATE_TEST_CASE_P(

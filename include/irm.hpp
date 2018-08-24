@@ -26,11 +26,14 @@
 
 #pragma once
 
+#include <cmath>
 #include <numeric>
 
 #include <boost/iterator/iterator_facade.hpp>
 
-namespace irk {
+#include <irm/trec.hpp>
+
+namespace irm {
 
 using std::begin;
 using std::end;
@@ -139,4 +142,23 @@ inline auto rank_biased_precision(double persistance)
         [](const auto& r) { return r > 0 ? 1 : 0; });
 };
 
-} // namespace irk
+template<class DocIt>
+inline double overlap(DocIt first1, DocIt last1, DocIt first2, DocIt last2)
+{
+    static_assert(std::is_same<decltype(*first1), decltype(*last1)>());
+    std::vector<decltype(*first1)> intersection;
+    std::set_intersection(
+        first1, last1, first2, last2, std::back_inserter(intersection));
+    return static_cast<double>(intersection.size())
+        / static_cast<double>(std::max(
+              std::distance(first1, last1), std::distance(first2, last2)));
+}
+
+template<class DocList>
+inline double overlap(const DocList& lhs, const DocList& rhs)
+{
+    return overlap(
+        std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(lhs));
+}
+
+}  // namespace irm

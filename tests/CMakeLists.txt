@@ -1,13 +1,15 @@
 cmake_policy(SET CMP0054 NEW)
 cmake_policy(SET CMP0057 NEW)
 
+find_package(GTest)
 include(GoogleTest)
 
-macro(add_test TEST_NAME)
-    add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
-    target_link_libraries(${TEST_NAME} eval_metrics gtest)
-    target_compile_features(${TEST_NAME} PRIVATE cxx_std_17)
-    #gtest_add_tests(TARGET ${TEST_NAME} TEST_PREFIX "xxx")
-endmacro()
+add_executable(test_precision "test_precision.cpp")
+target_link_libraries(test_precision irm GTest::GTest)
+target_compile_features(test_precision PRIVATE cxx_std_17)
+gtest_add_tests(TARGET test_precision)
 
-add_test(test_precision)
+add_executable(test_trec test_trec.cpp)
+target_link_libraries(test_trec irm GTest::GTest)
+target_compile_features(test_trec PRIVATE cxx_std_17)
+gtest_add_tests(TARGET test_trec)
