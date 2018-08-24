@@ -23,4 +23,6 @@ install:
 script:
   - |
     # Build with Conan
+    export CC=gcc-7
+    export CXX=g++-7
     conan build ..
