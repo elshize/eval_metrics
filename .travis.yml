@@ -13,6 +13,7 @@ before_install:
     pip install --user conan
     conan profile new default --detect
     conan profile update settings.compiler.libcxx=libstdc++11 default
+    conan profile update settings.compiler.version=7.3 default
     conan remote add cliutils https://api.bintray.com/conan/cliutils/CLI11
     conan remote add conan-community https://api.bintray.com/conan/conan-community/conan
 install:
