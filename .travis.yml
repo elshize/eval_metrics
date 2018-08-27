@@ -28,4 +28,6 @@ install:
 script:
   - |
     # Build with Conan
-    conan build ..
+    cmake ..
+    make VERBOSE=1
+    ctest -V
