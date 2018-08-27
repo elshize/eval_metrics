@@ -24,9 +24,7 @@
 //! \author Michal Siedlaczek
 //! \copyright MIT License
 
-#include <charconv>
 #include <functional>
-#include <string_view>
 #include <vector>
 
 #include <CLI/CLI.hpp>
@@ -36,37 +34,40 @@
 using metric_t = std::function<double(const std::vector<int>&)>;
 using namespace std::literals;
 
-metric_t parse_precision_at(std::string_view k)
+metric_t parse_precision_at(const std::string& k)
 {
     int parsed_k;
-    auto res = std::from_chars(std::begin(k), std::end(k), parsed_k);
-    if (res.ptr != std::end(k)) {
+    try {
+        parsed_k = std::stoi(k);
+        return irm::precision_at(parsed_k);
+    } catch (...) {
         throw std::runtime_error("Failed to parse P@" + std::string(k));
     }
-    return irm::precision_at(parsed_k);
 }
 
-metric_t parse_rbp(std::string_view p)
+metric_t parse_rbp(const std::string& p)
 {
     int parsed_p;
-    auto res = std::from_chars(std::begin(p), std::end(p), parsed_p);
-    if (res.ptr != std::end(p)) {
+    try {
+        parsed_p = std::stoi(p);
+    } catch (...) {
         throw std::runtime_error("Failed to parse RBP:" + std::string(p));
     }
-    if (parsed_p < 0 || parsed_p > 100) {
+    if (parsed_p < 0 || parsed_p > 100)
+    {
         throw std::runtime_error("Failed to parse RBP:" + std::string(p)
             + " (p must be in [0, 100]%)");
     }
     return irm::rank_biased_precision(static_cast<double>(parsed_p) / 100.0);
 }
 
-metric_t parse_metric(std::string_view name)
+metric_t parse_metric(const std::string& name)
 {
     if (name.substr(0, 2) == "P@"sv) {
-        return parse_precision_at(name.substr(2, std::string_view::npos));
+        return parse_precision_at(name.substr(2, std::string::npos));
     }
     else if (name.substr(0, 4) == "RBP:"sv) {
-        return parse_rbp(name.substr(4, std::string_view::npos));
+        return parse_rbp(name.substr(4, std::string::npos));
     }
     throw std::runtime_error("Unrecognized metric: " + std::string(name));
 }
@@ -75,7 +76,8 @@ int main(int argc, char** argv)
 {
     std::string qrels_file;
     std::string results_file;
-    std::vector<std::string> metrics = {"P@10",
+    std::vector<std::string> metrics = {
+        "P@10",
         "P@20",
         "P@30",
         "P@50",
