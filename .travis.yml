@@ -8,6 +8,10 @@ addons:
       - libboost-all-dev
 before_install:
   - |
+    # Set env variables
+    export CC=gcc-7
+    export CXX=g++-7
+  - |
     # Install conan
     export PATH=$HOME/.local/bin:$PATH
     pip install --user conan
@@ -24,6 +28,4 @@ install:
 script:
   - |
     # Build with Conan
-    export CC=gcc-7
-    export CXX=g++-7
     conan build ..
