@@ -31,47 +31,6 @@
 
 #include <irm.hpp>
 
-using metric_t = std::function<double(const std::vector<int>&)>;
-using namespace std::literals;
-
-metric_t parse_precision_at(const std::string& k)
-{
-    int parsed_k;
-    try {
-        parsed_k = std::stoi(k);
-        return irm::precision_at(parsed_k);
-    } catch (...) {
-        throw std::runtime_error("Failed to parse P@" + std::string(k));
-    }
-}
-
-metric_t parse_rbp(const std::string& p)
-{
-    int parsed_p;
-    try {
-        parsed_p = std::stoi(p);
-    } catch (...) {
-        throw std::runtime_error("Failed to parse RBP:" + std::string(p));
-    }
-    if (parsed_p < 0 || parsed_p > 100)
-    {
-        throw std::runtime_error("Failed to parse RBP:" + std::string(p)
-            + " (p must be in [0, 100]%)");
-    }
-    return irm::rank_biased_precision(static_cast<double>(parsed_p) / 100.0);
-}
-
-metric_t parse_metric(const std::string& name)
-{
-    if (name.substr(0, 2) == "P@"sv) {
-        return parse_precision_at(name.substr(2, std::string::npos));
-    }
-    else if (name.substr(0, 4) == "RBP:"sv) {
-        return parse_rbp(name.substr(4, std::string::npos));
-    }
-    throw std::runtime_error("Unrecognized metric: " + std::string(name));
-}
-
 int main(int argc, char** argv)
 {
     std::string qrels_file;
@@ -100,11 +59,11 @@ int main(int argc, char** argv)
     auto qrels = irm::read_trec_rels(qrels_file);
     auto results = irm::read_trec_results(results_file);
 
-    std::vector<metric_t> metric_functions;
+    std::vector<irm::metric_t> metric_functions;
     std::transform(std::begin(metrics),
         std::end(metrics),
         std::back_inserter(metric_functions),
-        parse_metric);
+        irm::parse_metric);
 
     auto annotated = irm::annotate(results, qrels);
     for (auto& [run_id, run_results] : annotated) {

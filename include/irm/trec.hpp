@@ -241,6 +241,16 @@ inline auto group(std::vector<R>& records)
     return map;
 }
 
+inline void annotate_single(std::vector<trec_result>& results,
+                            const std::vector<trec_rel>& rels)
+{
+    std::unordered_map<std::string, int> relmap;
+    for (const auto& rel : rels) { relmap[rel.document_id] = rel.relevance; }
+    for (auto& result : results) {
+        result.relevance = relmap[result.document_id];
+    }
+}
+
 inline auto
 annotate(std::vector<trec_result>& results, std::vector<trec_rel>& rels)
 {
@@ -250,15 +260,8 @@ annotate(std::vector<trec_result>& results, std::vector<trec_rel>& rels)
     {
         for (auto& [iteration, results_for_iteration] : results_for_run)
         {
-            for (auto& [query, results_for_query] : results_for_iteration)
-            {
-                std::unordered_map<std::string, int> relmap;
-                for (const auto& rel : grouped_rels[query]) {
-                    relmap[rel.document_id] = rel.relevance;
-                }
-                for (auto& result : results_for_query) {
-                    result.relevance = relmap[result.document_id];
-                }
+            for (auto& [query, results_for_query] : results_for_iteration) {
+                annotate_single(results_for_query, grouped_rels[query]);
             }
         }
     }

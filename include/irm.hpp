@@ -35,12 +35,12 @@
 
 namespace irm {
 
-using std::begin;
-using std::end;
 using std::min;
 using std::move;
-using std::next;
 using std::ptrdiff_t;
+
+using namespace std::literals;
+using metric_t = std::function<double(const std::vector<int>&)>;
 
 struct identity {
     template<class T>
@@ -100,7 +100,7 @@ public:
     template<class RelevanceRange>
     double operator()(const RelevanceRange& relevance) const
     {
-        return this->operator()(begin(relevance), end(relevance));
+        return this->operator()(std::begin(relevance), std::end(relevance));
     }
 
     template<class RelevanceIterator>
@@ -108,8 +108,8 @@ public:
     {
         ptrdiff_t cutoff = min(cutoff_, distance(first, last));
         cutoff = min(cutoff, static_cast<ptrdiff_t>(weights_.size()));
-        return std::inner_product(begin(weights_),
-            next(begin(weights_), cutoff),
+        return std::inner_product(std::begin(weights_),
+            std::next(std::begin(weights_), cutoff),
             first,
             0.0,
             std::plus<>(),
@@ -159,6 +159,44 @@ inline double overlap(const DocList& lhs, const DocList& rhs)
 {
     return overlap(
         std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(lhs));
+}
+
+metric_t parse_precision_at(const std::string& k)
+{
+    int parsed_k;
+    try {
+        parsed_k = std::stoi(k);
+        return irm::precision_at(parsed_k);
+    } catch (...) {
+        throw std::runtime_error("Failed to parse P@" + std::string(k));
+    }
+}
+
+metric_t parse_rbp(const std::string& p)
+{
+    int parsed_p;
+    try {
+        parsed_p = std::stoi(p);
+    } catch (...) {
+        throw std::runtime_error("Failed to parse RBP:" + std::string(p));
+    }
+    if (parsed_p < 0 || parsed_p > 100)
+    {
+        throw std::runtime_error("Failed to parse RBP:" + std::string(p)
+            + " (p must be in [0, 100]%)");
+    }
+    return irm::rank_biased_precision(static_cast<double>(parsed_p) / 100.0);
+}
+
+metric_t parse_metric(const std::string& name)
+{
+    if (name.substr(0, 2) == "P@"sv) {
+        return parse_precision_at(name.substr(2, std::string::npos));
+    }
+    else if (name.substr(0, 4) == "RBP:"sv) {
+        return parse_rbp(name.substr(4, std::string::npos));
+    }
+    throw std::runtime_error("Unrecognized metric: " + std::string(name));
 }
 
 }  // namespace irm

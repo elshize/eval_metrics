@@ -20,7 +20,8 @@ add_library(irm::irm ALIAS irm)
 target_include_directories(irm INTERFACE
     $<BUILD_INTERFACE:${irm_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-install(DIRECTORY include DESTINATION include)
+install(DIRECTORY include/irm DESTINATION include)
+install(FILES include/irm.hpp DESTINATION include)
 install(TARGETS irm EXPORT irm DESTINATION lib)
 install(EXPORT irm DESTINATION lib/irm)
 export(PACKAGE irm)
@@ -34,4 +35,3 @@ if (irm_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-find_package(CLI11)
