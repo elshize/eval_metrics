@@ -28,10 +28,12 @@
 
 #include <fstream>
 #include <functional>
+#include <limits>
 #include <map>
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace irm {
 

@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <numeric>
+#include <string_view>
 
 #include <boost/iterator/iterator_facade.hpp>
 
