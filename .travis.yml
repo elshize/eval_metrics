@@ -1,0 +1,33 @@
+language: cpp
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+      - libboost-all-dev
+before_install:
+  - |
+    # Set env variables
+    export CC=gcc-7
+    export CXX=g++-7
+  - |
+    # Install conan
+    export PATH=$HOME/.local/bin:$PATH
+    pip install --user conan
+    conan profile new default --detect
+    conan profile update settings.compiler.libcxx=libstdc++11 default
+    conan profile update settings.compiler.version=7.3 default
+    conan remote add cliutils https://api.bintray.com/conan/cliutils/CLI11
+    conan remote add conan-community https://api.bintray.com/conan/conan-community/conan
+install:
+  - |
+    # Install dependencies
+    mkdir build && cd build
+    conan install .. --build=missing
+script:
+  - |
+    # Build with Conan
+    cmake ..
+    make VERBOSE=1
+    ctest -V
